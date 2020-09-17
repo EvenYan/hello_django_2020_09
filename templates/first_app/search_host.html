@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{% static 'jquery.js' %}"></script>
+    <script src="{% static 'echarts.min.js' %}"></script>
+    <title>查询主机信息</title>
+</head>
+<body>
+    <input type="text" name="ip" id="ip_addr">
+
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div style="text-align:center; margin: 0 auto 50px">
+        <button style="width:100px;height:50px" onclick="get_bar(this)">获取主机信息</button>
+    </div>
+    <div style="width:600px;height:600px;display: block;margin:0 auto">
+        <div id="main" style="width: 600px;height:600px;"></div>
+    </div>
+
+    <div style="width: 100px; height: 100px">
+        
+    </div>
+
+    <script type="text/javascript">
+        function get_bar(e) {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart = echarts.init(document.getElementById('main'));
+
+            var car_list;
+            var num_list;
+            var ip = $("#ip_addr").val()
+            console.log(ip)
+            $.ajax({
+                url: '/get_host_info',
+                type: 'get',
+                data: {"ip":ip},
+                dataType: 'json',
+                success: function (data) {
+                    // todo
+                    console.log(data);
+                    car_list = data.time_list;
+                    num_list = data.mem_list;
+
+                    // 指定图表的配置项和数据
+                    var option = {
+                        title: {
+                            text: '主机内存使用情况'
+                        },
+                        tooltip: {},
+                        legend: {
+                            data: ['内存使用率']
+                        },
+                        // 指定x轴显示的高度，以防止x轴显示不全
+                        grid: {
+                            y2: 80
+                        },
+                        xAxis: {
+                            data: car_list,
+                            axisLabel: {
+                                interval: 0,
+                                // 倾斜显示，最好不要和formatter同时使用
+                                rotate: -40,
+                                //formatter: function (value) {
+                                    //return value.split('').join('\n');
+                                //}
+                            }
+                        },
+                        yAxis: {},
+                        series: [{
+                            name: '内存使用率',
+                            type: 'line',
+                            data: num_list
+                        }]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                },
+                error: function (data) {
+                    alert('Ajax请求失败！');
+                },
+            });
+        }
+    </script>
+</body>
+</html>

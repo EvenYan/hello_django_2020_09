@@ -30,4 +30,6 @@ urlpatterns = [
     url(r'^scan_host', scan_host),
     url(r'^upload_file', upload_file),
     url(r'^deal_upload_file', deal_upload_file),
+    url(r'^search_host_info', search_host_info),
+    url(r'^get_host_info', get_host_info),
 ]

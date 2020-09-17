@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import json
-from first_app.models import UserInfo
+from first_app.models import UserInfo, Host
 import hashlib
 import os
 from hello_django.settings import BASE_DIR
@@ -148,3 +148,21 @@ def scan_host(request):
                 f.write(nm[host].state())
                 f.write("\n")
     return HttpResponse("主机扫描完成！")
+
+
+
+def search_host_info(request):
+    return render(request, "first_app/search_host.html")
+
+
+def get_host_info(request):
+    import json
+    import datetime
+    ip = request.GET.get("ip")
+    print(ip)
+    info_list = Host.objects.filter(ip=ip).order_by("createtime").values_list("createtime", "mem")
+    time_list = [info[0].strftime("%H:%M") for info in info_list[::20]]
+    mem_list = [info[1] for info in info_list[::20]]
+    print(time_list, mem_list)
+    context = {"time_list":time_list, "mem_list": mem_list}
+    return HttpResponse(json.dumps(context))
